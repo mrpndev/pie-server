@@ -1,6 +1,4 @@
-// Common JS
-
 module.exports = {
-    piecontroller: require("./piecontroller"),
+    piecontroller: require('./piecontroller'),
     usercontroller: require('./usercontroller')
 }

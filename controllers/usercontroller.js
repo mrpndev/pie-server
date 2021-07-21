@@ -1,63 +1,98 @@
-const router = require("express").Router()
-const { UserModel } = require("../models")
-const { UniqueConstraintError } = require("sequelize/lib/errors")
-const jwt = require("jsonwebtoken")
+const router = require("express").Router();
+const { UserModel } = require("../models");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { UniqueConstraintError } = require("sequelize/lib/errors");
 
+// register
 router.post("/register", async (req, res) => {
-    let { firstName, lastName, email, password } = req.body
-        try {
-            const User = await UserModel.create({
-                firstName,
-                lastName,
-                email,
-                password
-                })
+  const { firstName, lastName, email, password } = req.body;
 
-                let token = jwt.sign({id: User.id, email: User.email}, "secret-key", {expiresIn: 60 * 60 * 24})
+  try {
+    const newUser = await UserModel.create({
+      firstName,
+      lastName,
+      email,
+      password: bcrypt.hashSync(password, 10),
+    });
 
-                res.status(201).json({
-                    message: "User registered successfully",
-                    user: User,
-                    sessionToken: token
-                })
-        } catch (err) {
-            if (err instanceof UniqueConstraintError) {
-                res.status(409).json({
-                    message: "Email already exists"
-                })
-            } else {
-                res.status(500).json({
-                    message: `Failed to register user ${err}`
-                })
-            }
-        }
-    
-})
+    const token = jwt.sign(
+      {
+        id: newUser.id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: 60 * 60 * 24,
+      }
+    );
 
-router.post("/login", async (req, res) => {
-    const { email, password } = req.body
+    res.status(201).json({
+      message: "User registered!",
+      user: newUser,
+      token,
+    });
+  } catch (err) {
+    if (err instanceof UniqueConstraintError) {
+      res.status(409).json({
+        message: "Email already in use.",
+      });
+    } else {
+      res.status(500).json({
+        error: `Failed to register user: ${err}`,
+      });
+    }
+  }
+});
+
+// login
+router.post('/login', async (req, res) => {
+    const {
+        email, 
+        password
+        } = req.body;
+
     try {
         let loginUser = await UserModel.findOne({
             where: {
-                email: email
+                email
             }
-        })
+        }); 
+
         if (loginUser) {
-            res.status(200).json({
-                user: loginUser,
-                message: "User logged in"
-            })
+            let passwordComparison = await bcrypt.compare(password, loginUser.password);
+
+            if (passwordComparison) {
+                let token = jwt.sign(
+                    {
+                        id: loginUser.id
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                        expiresIn: 60*60*24
+                    }
+                );
+
+                res.status(200).json({
+                    user: loginUser,
+                    message: "User successfully logged in!",
+                    token
+                });
+            } else {
+                res.status(401).json({
+                    message: "Incorrect email or password"
+                });
+            }
         } else {
             res.status(401).json({
-                message: "User not authorized"
+                message: "Incorrect email or password"
             })
         }
-        
+
     } catch (err) {
         res.status(500).json({
-            message: "Failed to login"
-        })
+            message: 'Error logging in!'
+        });
     }
 })
 
-module.exports = router
+module.exports = router;

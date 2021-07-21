@@ -1,24 +1,25 @@
 {
-  "name": "pie-server",
+  "name": "pie-api",
   "version": "1.0.0",
-  "description": "jsBlue server lecture notes",
+  "description": "pie server",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
     "dev": "nodemon"
   },
-  "author": "Paul Niemczyk",
-  "license": "MIT",
+  "author": "ZSM",
+  "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.0.1",
-    "dotenv": "^10.0.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "nodemon": "^2.0.12",
     "pg": "^8.6.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.6.5",
-    "sequelize-cli": "^6.2.0"
+    "sequelize": "^6.5.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   }
 }

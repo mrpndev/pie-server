@@ -1,6 +1,6 @@
-const Sequelize = require("sequelize")
+const {Sequelize} = require('sequelize');
 
-const sequelize = new Sequelize("postgres://postgres:dbLocal@localhost:5432/pieserver")
-// dbType://user:password@ipAddress:port/dbName
+const db = new Sequelize(process.env.DB_CONNECTION_STRING);
+// Variable_Name = database://user:password@host:port/dbname
 
-module.exports = sequelize
+module.exports = db;

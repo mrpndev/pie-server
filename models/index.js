@@ -1,3 +1,4 @@
-const UserModel = require("./user")
+const PieModel = require('./pie');
+const UserModel = require('./user');
 
-module.exports = { UserModel }
+module.exports = {PieModel, UserModel};
